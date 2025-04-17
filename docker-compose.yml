@@ -4,7 +4,7 @@ name: gn
 # geonetwork java settings
 x-geonetwork-environment:
   &default-geonetwork-environment
-  WEBAPP_CONTEXT_PATH: /geonetwork #Yiwei's edit correction
+  WEBAPP_CONTEXT_PATH: /geonetwork  
   DATA_DIR: /catalogue-data
   TZ: Europe/Amsterdam
   JAVA_OPTS: >-
@@ -39,8 +39,7 @@ x-geonetwork-environment:
   GEONETWORK_DB_NAME: geonetwork
   GEONETWORK_DB_USERNAME: geonetwork
   GEONETWORK_DB_PASSWORD: geonetwork
-  # GEONETWORK_PATH: /geonetwork
- 
+  
 # geonetwork web  settings
 x-service-geonetwork:
   &default-service-geonetwork
@@ -88,7 +87,7 @@ services:
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: password
       KC_HTTP_PORT: 8085   # Internal port
-      KC_HOSTNAME: https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth # Internal hostname
+      KC_HOSTNAME: https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth 
       KC_PROXY_HEADERS: xforwarded
       QUARKUS_DATASOURCE_JDBC_POOL_SIZE: 20
       PROXY_ADDRESS_FORWARDING: true # Enable proxy awareness
@@ -97,7 +96,7 @@ services:
     ports:
       - 8085:8085
     volumes:
-      - ./realm-export:/opt/keycloak/data/import/export.json # optional
+      - ./realm-export:/opt/keycloak/data/import/export.json  
     networks:
       - gn-network
     healthcheck:
@@ -119,6 +118,8 @@ services:
       OPENIDCONNECT_CLIENTSECRET: 1U5C4SS48XHDQaozGjJcZS35YnzEor9M
       OPENIDCONNECT_SERVERMETADATA_JSON_TEXT: '{"issuer":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP","authorization_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/auth","token_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/token","introspection_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/token/introspect","userinfo_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/userinfo","end_session_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/logout","frontchannel_logout_session_supported":true,"frontchannel_logout_supported":true,"jwks_uri":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/certs","check_session_iframe":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/login-status-iframe.html","grant_types_supported":["authorization_code","implicit","refresh_token","password","client_credentials","urn:openid:params:grant-type:ciba","urn:ietf:params:oauth:grant-type:device_code"],"acr_values_supported":["0","1"],"response_types_supported":["code","none","id_token","token","id_token token","code id_token","code token","code id_token token"],"subject_types_supported":["public","pairwise"],"prompt_values_supported":["none","login","consent"],"id_token_signing_alg_values_supported":["PS384","RS384","EdDSA","ES384","HS256","HS512","ES256","RS256","HS384","ES512","PS256","PS512","RS512"],"id_token_encryption_alg_values_supported":["ECDH-ES+A256KW","ECDH-ES+A192KW","ECDH-ES+A128KW","RSA-OAEP","RSA-OAEP-256","RSA1_5","ECDH-ES"],"id_token_encryption_enc_values_supported":["A256GCM","A192GCM","A128GCM","A128CBC-HS256","A192CBC-HS384","A256CBC-HS512"],"userinfo_signing_alg_values_supported":["PS384","RS384","EdDSA","ES384","HS256","HS512","ES256","RS256","HS384","ES512","PS256","PS512","RS512","none"],"userinfo_encryption_alg_values_supported":["ECDH-ES+A256KW","ECDH-ES+A192KW","ECDH-ES+A128KW","RSA-OAEP","RSA-OAEP-256","RSA1_5","ECDH-ES"],"userinfo_encryption_enc_values_supported":["A256GCM","A192GCM","A128GCM","A128CBC-HS256","A192CBC-HS384","A256CBC-HS512"],"request_object_signing_alg_values_supported":["PS384","RS384","EdDSA","ES384","HS256","HS512","ES256","RS256","HS384","ES512","PS256","PS512","RS512","none"],"request_object_encryption_alg_values_supported":["ECDH-ES+A256KW","ECDH-ES+A192KW","ECDH-ES+A128KW","RSA-OAEP","RSA-OAEP-256","RSA1_5","ECDH-ES"],"request_object_encryption_enc_values_supported":["A256GCM","A192GCM","A128GCM","A128CBC-HS256","A192CBC-HS384","A256CBC-HS512"],"response_modes_supported":["query","fragment","form_post","query.jwt","fragment.jwt","form_post.jwt","jwt"],"registration_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/clients-registrations/openid-connect","token_endpoint_auth_methods_supported":["private_key_jwt","client_secret_basic","client_secret_post","tls_client_auth","client_secret_jwt"],"token_endpoint_auth_signing_alg_values_supported":["PS384","RS384","EdDSA","ES384","HS256","HS512","ES256","RS256","HS384","ES512","PS256","PS512","RS512"],"introspection_endpoint_auth_methods_supported":["private_key_jwt","client_secret_basic","client_secret_post","tls_client_auth","client_secret_jwt"],"introspection_endpoint_auth_signing_alg_values_supported":["PS384","RS384","EdDSA","ES384","HS256","HS512","ES256","RS256","HS384","ES512","PS256","PS512","RS512"],"authorization_signing_alg_values_supported":["PS384","RS384","EdDSA","ES384","HS256","HS512","ES256","RS256","HS384","ES512","PS256","PS512","RS512"],"authorization_encryption_alg_values_supported":["ECDH-ES+A256KW","ECDH-ES+A192KW","ECDH-ES+A128KW","RSA-OAEP","RSA-OAEP-256","RSA1_5","ECDH-ES"],"authorization_encryption_enc_values_supported":["A256GCM","A192GCM","A128GCM","A128CBC-HS256","A192CBC-HS384","A256CBC-HS512"],"claims_supported":["aud","sub","iss","auth_time","name","given_name","family_name","preferred_username","email","acr"],"claim_types_supported":["normal"],"claims_parameter_supported":true,"scopes_supported":["openid","acr","email","address","service_account","offline_access","basic","web-origins","roles","microprofile-jwt","profile","organization","phone"],"request_parameter_supported":true,"request_uri_parameter_supported":true,"require_request_uri_registration":true,"code_challenge_methods_supported":["plain","S256"],"tls_client_certificate_bound_access_tokens":true,"revocation_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/revoke","revocation_endpoint_auth_methods_supported":["private_key_jwt","client_secret_basic","client_secret_post","tls_client_auth","client_secret_jwt"],"revocation_endpoint_auth_signing_alg_values_supported":["PS384","RS384","EdDSA","ES384","HS256","HS512","ES256","RS256","HS384","ES512","PS256","PS512","RS512"],"backchannel_logout_supported":true,"backchannel_logout_session_supported":true,"device_authorization_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/auth/device","backchannel_token_delivery_modes_supported":["poll","ping"],"backchannel_authentication_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/ext/ciba/auth","backchannel_authentication_request_signing_alg_values_supported":["PS384","RS384","EdDSA","ES384","ES256","RS256","ES512","PS256","PS512","RS512"],"require_pushed_authorization_requests":false,"pushed_authorization_request_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/ext/par/request","mtls_endpoint_aliases":{"token_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/token","revocation_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/revoke","introspection_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/token/introspect","device_authorization_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/auth/device","registration_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/clients-registrations/openid-connect","userinfo_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/userinfo","pushed_authorization_request_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/ext/par/request","backchannel_authentication_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/ext/ciba/auth"},"authorization_response_iss_parameter_supported":true}'
       OPENIDCONNECT_IDTOKENROLELOCATION: resource_access.geonetwork.roles
+
+      # Just in case we want to switch to keycloak instead of openidconnect
       # GEONETWORK_SECURITY_TYPE: keycloak
       # KEYCLOAK_AUTH_SERVER_URL: https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth
       # KEYCLOAK_REALM: master
@@ -133,10 +134,6 @@ services:
     depends_on:
       - elasticsearch
       - keycloak
-    volumes:
-#      - geonetwork_data:/usr/local/geonetwork/data
-#      - geonetwork_config:/usr/local/geonetwork/config
-      - ./config-security.properties:/opt/geonetwork/WEB-INF/config-security/config-security.properties
 
   database:
     image: postgis/postgis:11-2.5
@@ -174,7 +171,8 @@ services:
       - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./certs:/etc/nginx/certs # For HTTPS (self-signed or real)
+      - ./certs:/etc/nginx/certs  
+      - ./html:/etc/nginx/html:ro
     depends_on:
       - geonetwork
       - keycloak
