@@ -60,3 +60,13 @@ SSL Certificates: Make sure you have valid SSL certificates (even self-signed fo
 In summary, this setup looks reasonable for running GeoNetwork with Keycloak in a GitHub Codespace environment. The key is to use the Codespaces-generated HTTPS URL on port 443 and append /geonetwork/ or /auth/ to access the respective applications.
 
 Remember to start your Codespace and then access the services using the provided URLs. If you encounter any issues, examine the logs of each container for error messages.
+
+To test keycloak acting as the imaginary client's IDP: 
+
+https://dev.edh-cde.unclass.dfo-mpo.gc.ca/auth/realms/edh/protocol/openid-connect/auth?response_type=code&client_id=catalogue&redirect_uri=https://dev.edh-cde.unclass.dfo-mpo.gc.ca/catalogue/signin
+
+or use the external partner csw client ui example:
+
+https://dev.edh-cde.unclass.dfo-mpo.gc.ca/auth/realms/edh/protocol/openid-connect/auth?response_type=code&client_id=catalogue&redirect_uri=https://mellifluous-kulfi-8147ce.netlify.app
+
+go to link for the demo: https://mellifluous-kulfi-8147ce.netlify.app/
