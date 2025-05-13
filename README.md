@@ -70,3 +70,72 @@ or use the external partner csw client ui example:
 https://dev.edh-cde.unclass.dfo-mpo.gc.ca/auth/realms/edh/protocol/openid-connect/auth?response_type=code&client_id=catalogue&redirect_uri=https://mellifluous-kulfi-8147ce.netlify.app
 
 go to link for the demo: https://mellifluous-kulfi-8147ce.netlify.app/
+
+-----------------------
+
+To build geonetwork from source and the image too: 
+
+
+---
+
+# 🧱 Building GeoNetwork from Source + Running via Docker (Clean Setup)
+
+---
+
+## ✅ Step 1: Clone and Build GeoNetwork
+
+```bash
+git clone https://github.com/geonetwork/core-geonetwork.git
+cd core-geonetwork
+mvn clean install -DskipTests
+```
+
+This builds everything locally (Java + frontend). The output lives under:
+
+```
+web/target/geonetwork.war
+```
+
+---
+
+## ✅ Step 2: Create a Custom Dockerfile
+
+At the root of your project (not inside `core-geonetwork/`), create a file named `Dockerfile` (unless its there...):
+
+```Dockerfile
+FROM openjdk:25-jdk-slim
+
+WORKDIR /usr/local/geonetwork
+
+COPY core-geonetwork/web/target/geonetwork.war .
+
+EXPOSE 8080
+
+CMD ["java", "-Djetty.port=8080", "-jar", "geonetwork.war"]
+```
+
+---
+
+## ✅ Step 3: Create `docker-compose.yml`
+
+Also in the root, modify the `docker-compose.yml` modify:
+
+```yaml
+...
+x-service-geonetwork:
+  &default-service-geonetwork
+  build:
+      context: .
+      dockerfile: Dockerfile
+  #image: geonetwork:4.4.6
+...
+```
+---
+
+## ✅ Step 4: Build and Run
+
+```bash
+docker-compose up --build
+```
+ 
+---
