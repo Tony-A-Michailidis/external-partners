@@ -85,7 +85,7 @@ To build geonetwork from source and the image too:
 ## ✅ Step 1: Clone and Build GeoNetwork
 
 ```bash
-git clone https://github.com/geonetwork/core-geonetwork.git
+git clone https://github.com/geonetwork/core-geonetwork.git or git clone --recursive https://github.com/geonetwork/core-geonetwork.git
 cd core-geonetwork
 mvn clean install -DskipTests
 ```
@@ -138,5 +138,4 @@ x-service-geonetwork:
 docker-compose up --build
 ```
 
-Very usefull: mvn clean install -DskipTests ... if you really mess it up, remove all images and go back to build the geonetwork folder and mvn clean install -DskipTests etc.  
----
+Very usefull: if you mess it up, remove all images (docker system prune -a -f) and go back to the geonetwork folder and "mvn clean install -DskipTests", then move one folder up and "docker-compose up --build"

@@ -1,9 +1,15 @@
-FROM openjdk:25-jdk-slim
+FROM jetty:9.4.51-jdk11
 
-WORKDIR /usr/local/geonetwork
+# Starting with Jetty 10+, the javax.servlet.* classes have moved to the new jakarta.servlet.* namespace — so Jetty 11+ breaks backward compatibility for older WARs like GeoNetwork’s.
 
-COPY core-geonetwork/web/target/geonetwork.war .
+# Clean out default webapps
+RUN rm -rf /var/lib/jetty/webapps/*
+
+# Copy GeoNetwork WAR file
+#COPY core-geonetwork/web/target/geonetwork.war /var/lib/jetty/webapps/root.war
+COPY core-geonetwork/web/target/geonetwork.war /var/lib/jetty/webapps/geonetwork.war
+
+# Jetty auto-starts and deploys anything in /var/lib/jetty/webapps
+# so we don't need to define CMD or ENTRYPOINT
 
 EXPOSE 8080
-
-CMD ["java", "-Djetty.port=8080", "-jar", "geonetwork.war"]
