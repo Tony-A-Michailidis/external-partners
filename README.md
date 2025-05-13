@@ -132,10 +132,11 @@ x-service-geonetwork:
 ```
 ---
 
-## ✅ Step 4: Build and Run
+## ✅ Step 4: Build and Run, go to the root
 
 ```bash
 docker-compose up --build
 ```
- 
+
+Very usefull: mvn clean install -DskipTests ... if you really mess it up, remove all images and go back to build the geonetwork folder and mvn clean install -DskipTests etc.  
 ---
