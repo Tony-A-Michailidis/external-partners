@@ -173,7 +173,7 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs  
       - ./html:/etc/nginx/html:ro
-    depends_on: 
+    depends_on:
       - geonetwork
       - keycloak
       - kibana
@@ -239,6 +239,3 @@ volumes:
   esdata:
   pgdata:
   pglog:
-
-
-   
