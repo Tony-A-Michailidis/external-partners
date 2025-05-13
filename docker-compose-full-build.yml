@@ -1,0 +1,247 @@
+# project name
+name: gn
+
+# geonetwork java settings
+x-geonetwork-environment:
+  &default-geonetwork-environment
+  WEBAPP_CONTEXT_PATH: /geonetwork  
+  DATA_DIR: /catalogue-data
+  TZ: Europe/Amsterdam
+  JAVA_OPTS: >-
+    --add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED
+    -Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true
+    -Xms512M -Xss512M -Xmx2G -XX:+UseConcMarkSweepGC
+    -Djetty.httpConfig.requestHeaderSize=32768
+    -Dorg.eclipse.jetty.server.Request.maxFormContentSize=500000
+    -Dorg.eclipse.jetty.server.Request.maxFormKeys=4000
+    -Dorg.apache.activemq.broker.BrokerService.tempUsage.limit=2gb
+    -Dcom.sun.management.jmxremote=false
+
+# geonetwork configuration properties for elasticsearch and geonetwork API
+  GN_CONFIG_PROPERTIES: >-
+    -Dgeonetwork.dir=/catalogue-data
+    -Dgeonetwork.formatter.dir=/catalogue-data/data/formatter
+    -Dgeonetwork.schema.dir=/opt/geonetwork/WEB-INF/data/config/schema_plugins
+    -Dgeonetwork.indexConfig.dir=/opt/geonetwork/WEB-INF/data/config/index
+    -Dgeonetwork.schemapublication.dir=/opt/geonetwork/WEB-INF/data/resources/schemapublication
+    -Dgeonetwork.htmlcache.dir=/opt/geonetwork/WEB-INF/data/resources/htmlcache
+    -Des.host=elasticsearch
+    -Des.port=9200
+    -Des.protocol=http
+    -Des.url=http://elasticsearch:9200
+    -Des.username=
+    -Des.password=
+    -Dgeonetwork.ESFeaturesProxy.targetUri=http://vigilant-goggles-7p5wwqrxw9vfx554.github.dev-8080.app.github.dev/gn-features/{_} # use the ogc-api-records-service internal name
+    -Dgeonetwork.MicroServicesProxy.targetUri=http://vigilant-goggles-7p5wwqrxw9vfx554.github.dev-8080.app.github.dev/ogc-api-records-service #use ogc api records service internal name
+  GEONETWORK_DB_TYPE: postgres
+  GEONETWORK_DB_HOST: database
+  GEONETWORK_DB_PORT: 5432
+  GEONETWORK_DB_NAME: geonetwork
+  GEONETWORK_DB_USERNAME: geonetwork
+  GEONETWORK_DB_PASSWORD: geonetwork
+  
+# geonetwork web  settings
+x-service-geonetwork:
+  &default-service-geonetwork
+  image: geonetwork:4.4.6
+  healthcheck:
+    test: "curl https://vigilant-goggles-7p5wwqrxw9vfx554.github.dev-443.app.github.dev/"
+    interval: 5s
+    timeout: 5s
+    retries: 30
+  restart: always
+  user: root
+  volumes:
+    - ./geonetwork-data:/catalogue-data
+    - ./pgdata:/var/lib/postgresql/data
+    - ./esdata:/usr/share/elasticsearch/data
+    - ./activemq-data:/var/lib/jetty/activemq-data 
+  depends_on:
+    database:
+      condition: service_healthy
+  networks:
+    - gn-network
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: keycloak
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - gn-network
+ 
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    command: start-dev --import-realm
+    environment:
+      KC_HTTP_RELATIVE_PATH: /auth #Yiwei's edit / correction
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_THEME: keycloak
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+      KC_HTTP_PORT: 8085   # Internal port
+      KC_HOSTNAME: https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth 
+      KC_PROXY_HEADERS: xforwarded
+      QUARKUS_DATASOURCE_JDBC_POOL_SIZE: 20
+      PROXY_ADDRESS_FORWARDING: true # Enable proxy awareness
+    depends_on:
+      - db
+    ports:
+      - 8085:8085
+    volumes:
+      - ./realm-export:/opt/keycloak/data/import/export.json  
+    networks:
+      - gn-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "https://vigilant-goggles-7p5wwqrxw9vfx554.github.dev-8085.app.github.dev/realms/master"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s      
+
+  geonetwork:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    <<: *default-service-geonetwork
+    environment:
+      <<: *default-geonetwork-environment
+      HARVESTER_SCHEDULER_ENABLED: false
+      HARVESTER_REFRESH_INTERVAL_MINUTES: 10
+      ACTIVEMQ_TEMP_USAGE_LIMIT: 11200MB
+      GEONETWORK_SECURITY_TYPE: openidconnect 
+      OPENIDCONNECT_CLIENTID: geonetwork 
+      OPENIDCONNECT_CLIENTSECRET: 1U5C4SS48XHDQaozGjJcZS35YnzEor9M
+      OPENIDCONNECT_SERVERMETADATA_JSON_TEXT: '{"issuer":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP","authorization_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/auth","token_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/token","introspection_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/token/introspect","userinfo_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/userinfo","end_session_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/logout","frontchannel_logout_session_supported":true,"frontchannel_logout_supported":true,"jwks_uri":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/certs","check_session_iframe":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/login-status-iframe.html","grant_types_supported":["authorization_code","implicit","refresh_token","password","client_credentials","urn:openid:params:grant-type:ciba","urn:ietf:params:oauth:grant-type:device_code"],"acr_values_supported":["0","1"],"response_types_supported":["code","none","id_token","token","id_token token","code id_token","code token","code id_token token"],"subject_types_supported":["public","pairwise"],"prompt_values_supported":["none","login","consent"],"id_token_signing_alg_values_supported":["PS384","RS384","EdDSA","ES384","HS256","HS512","ES256","RS256","HS384","ES512","PS256","PS512","RS512"],"id_token_encryption_alg_values_supported":["ECDH-ES+A256KW","ECDH-ES+A192KW","ECDH-ES+A128KW","RSA-OAEP","RSA-OAEP-256","RSA1_5","ECDH-ES"],"id_token_encryption_enc_values_supported":["A256GCM","A192GCM","A128GCM","A128CBC-HS256","A192CBC-HS384","A256CBC-HS512"],"userinfo_signing_alg_values_supported":["PS384","RS384","EdDSA","ES384","HS256","HS512","ES256","RS256","HS384","ES512","PS256","PS512","RS512","none"],"userinfo_encryption_alg_values_supported":["ECDH-ES+A256KW","ECDH-ES+A192KW","ECDH-ES+A128KW","RSA-OAEP","RSA-OAEP-256","RSA1_5","ECDH-ES"],"userinfo_encryption_enc_values_supported":["A256GCM","A192GCM","A128GCM","A128CBC-HS256","A192CBC-HS384","A256CBC-HS512"],"request_object_signing_alg_values_supported":["PS384","RS384","EdDSA","ES384","HS256","HS512","ES256","RS256","HS384","ES512","PS256","PS512","RS512","none"],"request_object_encryption_alg_values_supported":["ECDH-ES+A256KW","ECDH-ES+A192KW","ECDH-ES+A128KW","RSA-OAEP","RSA-OAEP-256","RSA1_5","ECDH-ES"],"request_object_encryption_enc_values_supported":["A256GCM","A192GCM","A128GCM","A128CBC-HS256","A192CBC-HS384","A256CBC-HS512"],"response_modes_supported":["query","fragment","form_post","query.jwt","fragment.jwt","form_post.jwt","jwt"],"registration_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/clients-registrations/openid-connect","token_endpoint_auth_methods_supported":["private_key_jwt","client_secret_basic","client_secret_post","tls_client_auth","client_secret_jwt"],"token_endpoint_auth_signing_alg_values_supported":["PS384","RS384","EdDSA","ES384","HS256","HS512","ES256","RS256","HS384","ES512","PS256","PS512","RS512"],"introspection_endpoint_auth_methods_supported":["private_key_jwt","client_secret_basic","client_secret_post","tls_client_auth","client_secret_jwt"],"introspection_endpoint_auth_signing_alg_values_supported":["PS384","RS384","EdDSA","ES384","HS256","HS512","ES256","RS256","HS384","ES512","PS256","PS512","RS512"],"authorization_signing_alg_values_supported":["PS384","RS384","EdDSA","ES384","HS256","HS512","ES256","RS256","HS384","ES512","PS256","PS512","RS512"],"authorization_encryption_alg_values_supported":["ECDH-ES+A256KW","ECDH-ES+A192KW","ECDH-ES+A128KW","RSA-OAEP","RSA-OAEP-256","RSA1_5","ECDH-ES"],"authorization_encryption_enc_values_supported":["A256GCM","A192GCM","A128GCM","A128CBC-HS256","A192CBC-HS384","A256CBC-HS512"],"claims_supported":["aud","sub","iss","auth_time","name","given_name","family_name","preferred_username","email","acr"],"claim_types_supported":["normal"],"claims_parameter_supported":true,"scopes_supported":["openid","acr","email","address","service_account","offline_access","basic","web-origins","roles","microprofile-jwt","profile","organization","phone"],"request_parameter_supported":true,"request_uri_parameter_supported":true,"require_request_uri_registration":true,"code_challenge_methods_supported":["plain","S256"],"tls_client_certificate_bound_access_tokens":true,"revocation_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/revoke","revocation_endpoint_auth_methods_supported":["private_key_jwt","client_secret_basic","client_secret_post","tls_client_auth","client_secret_jwt"],"revocation_endpoint_auth_signing_alg_values_supported":["PS384","RS384","EdDSA","ES384","HS256","HS512","ES256","RS256","HS384","ES512","PS256","PS512","RS512"],"backchannel_logout_supported":true,"backchannel_logout_session_supported":true,"device_authorization_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/auth/device","backchannel_token_delivery_modes_supported":["poll","ping"],"backchannel_authentication_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/ext/ciba/auth","backchannel_authentication_request_signing_alg_values_supported":["PS384","RS384","EdDSA","ES384","ES256","RS256","ES512","PS256","PS512","RS512"],"require_pushed_authorization_requests":false,"pushed_authorization_request_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/ext/par/request","mtls_endpoint_aliases":{"token_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/token","revocation_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/revoke","introspection_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/token/introspect","device_authorization_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/auth/device","registration_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/clients-registrations/openid-connect","userinfo_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/userinfo","pushed_authorization_request_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/ext/par/request","backchannel_authentication_endpoint":"https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth/realms/IDP/protocol/openid-connect/ext/ciba/auth"},"authorization_response_iss_parameter_supported":true}'
+      OPENIDCONNECT_IDTOKENROLELOCATION: resource_access.geonetwork.roles
+
+      # Just in case we want to switch to keycloak instead of openidconnect
+      # GEONETWORK_SECURITY_TYPE: keycloak
+      # KEYCLOAK_AUTH_SERVER_URL: https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/auth
+      # KEYCLOAK_REALM: master
+      # KEYCLOAK_RESOURCE: geonetwork
+      # KEYCLOAK_SECRET: a76h6aes7XnC2G8FB150FWDFTDcHD4zQ
+      # KEYCLOAK_DISABLE_TRUST_MANAGER: true
+
+    ports:
+      - "8080:8080" # Expose for Nginx
+    networks:
+      - gn-network
+    depends_on:
+      - elasticsearch
+      - keycloak
+
+  database:
+    image: postgis/postgis:11-2.5
+    environment:
+      POSTGRES_USER: geonetwork
+      POSTGRES_PASSWORD: geonetwork
+      POSTGRES_DB: geonetwork
+    command:
+      - "postgres"
+      - "-c"
+      - "log_statement=all"
+      - "-c"
+      - "logging_collector=true"
+      - "-c"
+      - "log_file_mode=0644"
+      - "-c"
+      - "log_directory=/var/log/postgresql"
+      - "-c"
+      - "log_filename=postgresql.log"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - pglog:/var/log/postgresql
+    networks:
+      - gn-network
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs  
+      - ./html:/etc/nginx/html:ro
+    depends_on: 
+      - geonetwork
+      - keycloak
+      - kibana
+      - elasticsearch
+    networks:         
+      - gn-network
+
+  elasticsearch:
+    image: elasticsearch:8.14.3
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    healthcheck:
+      test: ["CMD", "curl", "-s", "-XGET", "http://vigilant-goggles-7p5wwqrxw9vfx554.github.dev-9200.app.github.dev/_cluster/health?wait_for_status=yellow&timeout=5s"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    networks:
+      - gn-network
+    ports:
+      - "9200:9200" # Expose for Nginx  
+     
+  kibana:
+    image: kibana:8.14.3
+    environment:
+      SERVER_NAME: "kibana"
+      ELASTICSEARCH_URL: http://vigilant-goggles-7p5wwqrxw9vfx554.github.dev-9200.app.github.dev
+      SERVER_BASEPATH: /geonetwork/dashboards
+      SERVER_REWRITEBASEPATH: "false"
+      XPACK_MONITORING_UI_CONTAINER_ELASTICSEARCH_ENABLED: "true"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - gn-network
+ 
+networks:
+  gn-network:
+    driver: bridge
+  web:
+    external: true 
+
+volumes:
+  es_data:
+  keycloak_data:
+  geonetwork_data:
+  geonetwork_config:
+  db-data:
+  esdata:
+  pgdata:
+  pglog:
+
+
+   
