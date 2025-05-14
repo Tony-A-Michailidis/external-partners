@@ -43,7 +43,7 @@ x-geonetwork-environment:
 # geonetwork web  settings
 x-service-geonetwork:
   &default-service-geonetwork
-  image: geonetwork:4.4.6
+  image: geonetwork:4.4.6-custom
   healthcheck:
     test: "curl https://vigilant-goggles-7p5wwqrxw9vfx554.github.dev-443.app.github.dev/"
     interval: 5s
@@ -107,9 +107,6 @@ services:
       start_period: 60s      
 
   geonetwork:
-  #  build:
-  #    context: .
-  #    dockerfile: Dockerfile
     <<: *default-service-geonetwork
     environment:
       <<: *default-geonetwork-environment
@@ -129,7 +126,7 @@ services:
       # KEYCLOAK_RESOURCE: geonetwork
       # KEYCLOAK_SECRET: a76h6aes7XnC2G8FB150FWDFTDcHD4zQ
       # KEYCLOAK_DISABLE_TRUST_MANAGER: true
-
+ 
     ports:
       - "8080:8080" # Expose for Nginx
     networks:

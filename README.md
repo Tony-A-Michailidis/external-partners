@@ -80,62 +80,41 @@ To build geonetwork from source and the image too:
 
 # 🧱 Building GeoNetwork from Source + Running via Docker (Clean Setup)
 
----
-
-## ✅ Step 1: Clone and Build GeoNetwork
-
-```bash
-git clone https://github.com/geonetwork/core-geonetwork.git or git clone --recursive https://github.com/geonetwork/core-geonetwork.git
+git clone https://github.com/geonetwork/core-geonetwork.git
 cd core-geonetwork
-mvn clean install -DskipTests
-```
+git fetch --tags
+git checkout v4.4.6
+git submodule update --init –recursive
 
-This builds everything locally (Java + frontend). The output lives under:
+This checks out the exact 4.4.6 tag and pulls in any submodules. There is no web-ui/package.json in 4.2.x + ,  the UI lives in the web module and is built by Maven
 
-```
-web/target/geonetwork.war
-```
+export MAVEN_OPTS="-Xmx2G"           # Java 11+: drop any MaxPermSize flags
+mvn clean install -P es -DskipTests  # ES profile, skip tests
+look for core-geonetwork/web/target/geonetwork.war 
 
----
+Save this as Dockerfile in core-geonetwork/:
 
-## ✅ Step 2: Create a Custom Dockerfile
+ 
+# ── Stage 1: Build the WAR ────────────────────────────────────────
+FROM maven:3.8.6-openjdk-11-slim AS builder
+WORKDIR /app
+COPY . .
+RUN mvn clean install -P es -DskipTests
 
-At the root of your project (not inside `core-geonetwork/`), create a file named `Dockerfile` (unless its there...):
-
-```Dockerfile
-FROM openjdk:25-jdk-slim
-
-WORKDIR /usr/local/geonetwork
-
-COPY core-geonetwork/web/target/geonetwork.war .
-
+# ── Stage 2: Runtime image ────────────────────────────────────────
+FROM jetty:9-jdk11
+ENV GEONETWORK_DATA_DIR=/opt/geonetwork/data
+COPY --from=builder /app/web/target/geonetwork.war \
+     /var/lib/jetty/webapps/geonetwork.war
+VOLUME ["${GEONETWORK_DATA_DIR}"]
 EXPOSE 8080
+CMD ["java","-jar","/usr/local/jetty/start.jar"]
 
-CMD ["java", "-Djetty.port=8080", "-jar", "geonetwork.war"]
-```
+Go to the core-geonetwork folder and 
 
----
+docker build -t geonetwork:4.4.6-custom .
 
-## ✅ Step 3: Create `docker-compose.yml`
+Then go to the docker-compose.yml file and change the image reference for geonetwork to geonetwork:4.4.6-custom. 
 
-Also in the root, modify the `docker-compose.yml` modify:
-
-```yaml
-...
-x-service-geonetwork:
-  &default-service-geonetwork
-  build:
-      context: .
-      dockerfile: Dockerfile
-  #image: geonetwork:4.4.6
-...
-```
----
-
-## ✅ Step 4: Build and Run, go to the root
-
-```bash
-docker-compose up --build
-```
-
-Very usefull: if you mess it up, remove all images (docker system prune -a -f) and go back to the geonetwork folder and "mvn clean install -DskipTests", then move one folder up and "docker-compose up --build"
+Also if you run out of space and now that the image geonetwork:4.4.6-custom is built and exists in the local docker, you can delete the core-geonetwork folder (as long as you didn’t add anything you want to keep in it and you can recreate using the above steps):
+ 
