@@ -10,12 +10,13 @@ x-geonetwork-environment:
   JAVA_OPTS: >-
     --add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED
     -Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true
-    -Xms512M -Xss512M -Xmx2G -XX:+UseConcMarkSweepGC
+    -Xms512M -Xss512M -Xmx2G -XX:+UseConcMarkSweepGC  
     -Djetty.httpConfig.requestHeaderSize=32768
     -Dorg.eclipse.jetty.server.Request.maxFormContentSize=500000
     -Dorg.eclipse.jetty.server.Request.maxFormKeys=4000
     -Dorg.apache.activemq.broker.BrokerService.tempUsage.limit=2gb
     -Dcom.sun.management.jmxremote=false
+ 
 
 # geonetwork configuration properties for elasticsearch and geonetwork API
   GN_CONFIG_PROPERTIES: >-
@@ -43,7 +44,8 @@ x-geonetwork-environment:
 # geonetwork web  settings
 x-service-geonetwork:
   &default-service-geonetwork
-  image: geonetwork:4.4.6-custom
+  #image: tonym1966/geonetwork:4.4.6-custom
+  image: geonetwork:4.4.7
   healthcheck:
     test: "curl https://vigilant-goggles-7p5wwqrxw9vfx554.github.dev-443.app.github.dev/"
     interval: 5s

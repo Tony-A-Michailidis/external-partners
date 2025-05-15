@@ -83,8 +83,8 @@ To build geonetwork from source and the image too:
 git clone https://github.com/geonetwork/core-geonetwork.git
 cd core-geonetwork
 git fetch --tags
-git checkout v4.4.6
-git submodule update --init –recursive
+git checkout 4.4.6
+git submodule update --init --recursive
 
 This checks out the exact 4.4.6 tag and pulls in any submodules. There is no web-ui/package.json in 4.2.x + ,  the UI lives in the web module and is built by Maven
 
@@ -92,27 +92,14 @@ export MAVEN_OPTS="-Xmx2G"           # Java 11+: drop any MaxPermSize flags
 mvn clean install -P es -DskipTests  # ES profile, skip tests
 look for core-geonetwork/web/target/geonetwork.war 
 
-Save this as Dockerfile in core-geonetwork/:
-
- 
-# ── Stage 1: Build the WAR ────────────────────────────────────────
-FROM maven:3.8.6-openjdk-11-slim AS builder
-WORKDIR /app
-COPY . .
-RUN mvn clean install -P es -DskipTests
-
-# ── Stage 2: Runtime image ────────────────────────────────────────
-FROM jetty:9-jdk11
-ENV GEONETWORK_DATA_DIR=/opt/geonetwork/data
-COPY --from=builder /app/web/target/geonetwork.war \
-     /var/lib/jetty/webapps/geonetwork.war
-VOLUME ["${GEONETWORK_DATA_DIR}"]
-EXPOSE 8080
-CMD ["java","-jar","/usr/local/jetty/start.jar"]
+Use the Dockerfile in the root /workspaces/  
 
 Go to the core-geonetwork folder and 
 
 docker build -t geonetwork:4.4.6-custom .
+
+docker login -u tonym1966
+dckr_pat_dPq8zLvPMP6ZRvMfzO2uqRFA_VY
 
 Then go to the docker-compose.yml file and change the image reference for geonetwork to geonetwork:4.4.6-custom. 
 
