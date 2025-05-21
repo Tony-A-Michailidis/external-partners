@@ -251,13 +251,13 @@ services:
       - gn-network
 
 # used for testing only
-  my-http-listener:
-    image: mendhak/http-https-echo:31
-    environment:
-        - HTTP_PORT=8888
-        - HTTPS_PORT=9999
-    networks:
-      - gn-network
+#  my-http-listener:
+#    image: mendhak/http-https-echo:31
+#    environment:
+#        - HTTP_PORT=8888
+#        - HTTPS_PORT=9999
+#    networks:
+#      - gn-network
 
 networks:
   gn-network:
