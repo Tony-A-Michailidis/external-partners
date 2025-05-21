@@ -98,7 +98,8 @@ Go to the core-geonetwork folder and
 
 docker build -t geonetwork:4.4.6-custom .
 
-
+docker login -u tonym1966
+dckr_pat_dPq8zLvPMP6ZRvMfzO2uqRFA_VY
 
 Then go to the docker-compose.yml file and change the image reference for geonetwork to geonetwork:4.4.6-custom. 
 

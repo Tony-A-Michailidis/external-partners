@@ -77,7 +77,7 @@ services:
       - gn-network
  
   keycloak:
-    image: quay.io/keycloak/keycloak:latest
+    image: quay.io/keycloak/keycloak:26.2.4
     command: start-dev --import-realm
     environment:
       KC_HTTP_RELATIVE_PATH: /auth #Yiwei's edit / correction
