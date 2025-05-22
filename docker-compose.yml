@@ -200,6 +200,7 @@ services:
       - ./nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
       - ./nginx/lua:/etc/openresty/lua:ro
       - ./certs:/usr/local/openresty/nginx/certs # For HTTPS (self-signed or real)
+      - ./html:/usr/share/nginx/html:ro 
     depends_on:
       - geonetwork
       - keycloak

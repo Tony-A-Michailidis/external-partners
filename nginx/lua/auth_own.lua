@@ -45,6 +45,16 @@ if auth_header then
     end
 end
 
+--ngx.req.set_header("REMOTE_USER", "guest")
+--ngx.req.set_header("Shib-Person-surname", "guest")
+--ngx.req.set_header("Shib-InetOrgPerson-givenName", "guest")
+--ngx.req.set_header("Shib-EP-Email", "guest-do-not-reply@guest.guest")
+--ngx.req.set_header("Shib-EP-organisation", "guest")
+--ngx.req.set_header("Shib-EP-Entitlement", "Guest")
+--ngx.status = 301
+
+-- we need the above and a new page and that user to login as a guest or as a real user. 
+
 -- Fallback to OIDC authentication if no valid JWT token
 local res, err = oidc.authenticate(geonetwork_opts)
 
