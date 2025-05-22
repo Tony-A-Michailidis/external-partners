@@ -54,6 +54,11 @@ end
 --ngx.status = 301
 
 -- we need the above and a new page and that user to login as a guest or as a real user. 
+-- you will need a new page. on the page, have two links, one is login as Guest, the other 
+-- is login as Tony Keycloak User.
+-- the new page, could be something like. if goes to Guest login, set up in the header, for 
+-- ex, "REMOTE_USER" = guest. then in lua, check header, if REMOTE_USER=guest, then set all 
+-- Guest user info. If no this flag, do oidc login againt Keycloak 
 
 -- Fallback to OIDC authentication if no valid JWT token
 local res, err = oidc.authenticate(geonetwork_opts)
