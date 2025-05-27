@@ -12,4 +12,4 @@ https://vigilant-goggles-7p5wwqrxw9vfx554-443.app.github.dev/
 
 Note that "docker-compose down -v" will also remove the volumes, so you'll lose the data you have saved in the persistent volumes of geoserver, keycloak etc. careful! 
 
-You can chance the server URL in the .env file and adjust the names of the certs in the nginx.conf file if different. 
+You can change the server URL in the .env file and adjust the names of the certs in the nginx.conf file if different. 
