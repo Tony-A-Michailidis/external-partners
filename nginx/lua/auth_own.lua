@@ -30,6 +30,7 @@ if auth_header then
 
     if not err then
       -- Set the Shibboleth header according to config-security-shibboleth-overrides.properties
+      ngx.log(ngx.WARN, "this is the bearer token: ",auth_header) 
       ngx.req.set_header("REMOTE_USER", res.sub)
       ngx.req.set_header("Shib-Person-surname", res.family_name)
       ngx.req.set_header("Shib-InetOrgPerson-givenName", res.given_name)
@@ -37,6 +38,9 @@ if auth_header then
       ngx.req.set_header("Shib-EP-organisation", res.organization)
       ngx.req.set_header("Shib-EP-Entitlement", res.resource_access.geonetwork.roles)
       
+      local cjson = require("cjson.safe")
+      ngx.log(ngx.WARN, "full JWT payload: ", cjson.encode(res))
+
         -- ngx.req.set_header("X-User", res.sub)
         -- ngx.req.set_header("X-Username", res.preferred_username)
         -- ngx.req.set_header("X-Email", res.email)
@@ -71,12 +75,16 @@ if err then
 end
 
 -- Set the Shibboleth header according to config-security-shibboleth-overrides.properties
+ngx.log(ngx.WARN, "this is the bearer token: ",auth_header) 
 ngx.req.set_header("REMOTE_USER", res.id_token.sub)
 ngx.req.set_header("Shib-Person-surname", res.id_token.family_name)
 ngx.req.set_header("Shib-InetOrgPerson-givenName", res.id_token.given_name)
 ngx.req.set_header("Shib-EP-Email", res.id_token.email)
 ngx.req.set_header("Shib-EP-organisation", res.id_token.organization)
 ngx.req.set_header("Shib-EP-Entitlement", res.id_token.resource_access.geonetwork.roles)
+
+local cjson = require("cjson.safe")
+ngx.log(ngx.WARN, "full JWT payload: ", cjson.encode(res))
 
 -- ngx.req.set_header("OIDC_access_token", res.access_token)
 -- ngx.req.set_header("Authorization", "Bearer " .. res.access_token)

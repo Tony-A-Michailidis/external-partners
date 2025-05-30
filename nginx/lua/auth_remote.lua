@@ -19,7 +19,7 @@ if auth_header then
       -- Set the Shibboleth header according to config-security-shibboleth-overrides.properties
       -- here we setup the header, we can also restrict so that only this NGINX can setup the header by only accepting IP from this NGINS or use mTLS 
       -- where we make sure only this server can setup the header. and also remove the existing if not valid. 
-      ngx.log(ngx.WARN, "this is the header: ",auth_header) 
+      ngx.log(ngx.WARN, "this is the bearer token: ",auth_header) 
       ngx.req.set_header("REMOTE_USER", res.sub)
       ngx.log(ngx.WARN, "this is the user ID: ", res.sub) 
       ngx.req.set_header("Shib-Person-surname", res.family_name)
