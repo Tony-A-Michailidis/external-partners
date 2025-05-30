@@ -118,6 +118,7 @@ services:
       HARVESTER_REFRESH_INTERVAL_MINUTES: 10
       ACTIVEMQ_TEMP_USAGE_LIMIT: 10GB
       GEONETWORK_SECURITY_TYPE: shibboleth      
+# for geonetwork to work look at the shobboleth overwride properties and turn on the visible login
 
 #      HARVESTER_REFRESH_INTERVAL_MINUTES: 10
 #      ACTIVEMQ_TEMP_USAGE_LIMIT: 11200MB
