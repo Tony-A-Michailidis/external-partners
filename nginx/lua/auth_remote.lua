@@ -19,16 +19,24 @@ if auth_header then
       -- Set the Shibboleth header according to config-security-shibboleth-overrides.properties
       -- here we setup the header, we can also restrict so that only this NGINX can setup the header by only accepting IP from this NGINS or use mTLS 
       -- where we make sure only this server can setup the header. and also remove the existing if not valid. 
-      ngx.log(ngx.WARN, auth_header) 
+      ngx.log(ngx.WARN, "this is the header: ",auth_header) 
       ngx.req.set_header("REMOTE_USER", res.sub)
-      ngx.log(ngx.WARN, res.sub) 
+      ngx.log(ngx.WARN, "this is the user ID: ", res.sub) 
       ngx.req.set_header("Shib-Person-surname", res.family_name)
-      ngx.log(ngx.WARN, res.family_name) 
+      ngx.log(ngx.WARN, "this is the family name: ", res.family_name) 
       ngx.req.set_header("Shib-InetOrgPerson-givenName", res.given_name)
-      ngx.log(ngx.WARN, res.given_name) 
+      ngx.log(ngx.WARN, "this is the given name: ", res.given_name) 
       ngx.req.set_header("Shib-EP-Email", res.email)
-      ngx.log(ngx.WARN, res.email) 
+      ngx.log(ngx.WARN, "this is the e-mail: ", res.email) 
+      ngx.log(ngx.WARN, "this is the issuer: ", res.iss)    
       
+      local cjson = require("cjson.safe")
+      ngx.log(ngx.WARN, "full JWT payload: ", cjson.encode(res))
+
+      -- special handling to get the allowed roles: 
+      local roles = res.resource_access 
+      ngx.log(ngx.WARN, "these are the roles allowed: ", table.concat(roles, ", ") )
+
 --     ngx.req.set_header("Shib-EP-organisation", res.organization)
 --     ngx.req.set_header("Shib-EP-Entitlement", res.resource_access.geonetwork.roles)
         -- ngx.req.set_header("X-User", res.sub)

@@ -31,17 +31,27 @@ if auth_header then
     if not err then
       -- Set the Shibboleth header according to config-security-shibboleth-overrides.properties
       ngx.req.set_header("REMOTE_USER", res.sub)
-      ngx.log(ngx.WARN, res.sub)
+      ngx.log(ngx.WARN, "this is the user ID: ", res.sub)
       ngx.req.set_header("Shib-Person-surname", res.family_name)
-      ngx.log(ngx.WARN, res.family_name)
+      ngx.log(ngx.WARN, "this is the family name: ", res.family_name)
       ngx.req.set_header("Shib-InetOrgPerson-givenName", res.given_name)
-      ngx.log(ngx.WARN, res.given_name)
+      ngx.log(ngx.WARN, "this is the given name: ", res.given_name)
       ngx.req.set_header("Shib-EP-Email", res.email)
-      ngx.log(ngx.WARN, res.email)
+      ngx.log(ngx.WARN, "this is the email: ", res.email)
       ngx.req.set_header("Shib-EP-organisation", res.organization)
-      ngx.log(ngx.WARN, res.organization)
+      ngx.log(ngx.WARN, "this is the organization: ", res.organization)
       ngx.req.set_header("Shib-EP-Entitlement", res.resource_access.geonetwork.roles)
-      ngx.log(ngx.WARN, res.organization)
+      ngx.log(ngx.WARN, "this is the issuer: ", res.iss) 
+
+      -- special handling to get the allowed roles: 
+      local cjson = require("cjson.safe")
+      ngx.log(ngx.WARN, "full JWT payload: ", cjson.encode(res))
+-- or you can try:       
+-- local cjson = require("cjson.safe")
+-- local roles_json = cjson.encode(res.resource_access.geonetwork.roles)
+-- ngx.log(ngx.WARN, "these are the roles allowed: ", roles_json)
+
+
         -- ngx.req.set_header("X-User", res.sub)
         -- ngx.req.set_header("X-Username", res.preferred_username)
         -- ngx.req.set_header("X-Email", res.email)
@@ -77,17 +87,22 @@ end
 
 -- Set the Shibboleth header according to config-security-shibboleth-overrides.properties
 ngx.req.set_header("REMOTE_USER", res.id_token.sub)
-ngx.log(ngx.WARN, res.id_token.sub) 
+ngx.log(ngx.WARN, "this is the token id: ", res.id_token.sub) 
 ngx.req.set_header("Shib-Person-surname", res.id_token.family_name)
-ngx.log(ngx.WARN, res.id_token.family_name) 
+ngx.log(ngx.WARN, "this is the family name: ", res.id_token.family_name) 
 ngx.req.set_header("Shib-InetOrgPerson-givenName", res.id_token.given_name)
-ngx.log(ngx.WARN, res.id_token.given_name) 
+ngx.log(ngx.WARN, "this is the given name: ", res.id_token.given_name) 
 ngx.req.set_header("Shib-EP-Email", res.id_token.email)
-ngx.log(ngx.WARN, res.id_token.email) 
+ngx.log(ngx.WARN, "this is the e-mail: ", res.id_token.email) 
 ngx.req.set_header("Shib-EP-organisation", res.id_token.organization)
-ngx.log(ngx.WARN, res.id_token.organization) 
-ngx.req.set_header("Shib-EP-Entitlement", res.id_token.resource_access.geonetwork.roles)
-ngx.log(ngx.WARN, res.id_token.resource_access.geonetwork.roles) 
+ngx.log(ngx.WARN, "this is the organization: ", res.id_token.organization) 
+ngx.req.set_header("Shib-EP-Entitlement", res.resource_access.geonetwork.roles)
+ngx.log(ngx.WARN, "these are the roles allowed: ", res.resource_access.geonetwork.roles) 
+ngx.log(ngx.ERR, "this is the issuer: ", res.iss) 
+
+-- special handling to get the allowed roles: 
+local cjson = require("cjson.safe")
+ngx.log(ngx.WARN, "full JWT payload: ", cjson.encode(res))
 
 -- ngx.req.set_header("OIDC_access_token", res.access_token)
 -- ngx.req.set_header("Authorization", "Bearer " .. res.access_token)

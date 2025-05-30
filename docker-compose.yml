@@ -196,6 +196,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    environment:
+      - OPENRESTY_DEBUG=1
     volumes:
       - ./nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
       - ./nginx/lua:/etc/openresty/lua:ro
