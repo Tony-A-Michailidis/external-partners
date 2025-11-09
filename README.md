@@ -119,6 +119,5 @@ If you encounter any issues or have questions:
 - 💭 Start a discussion in the Discussions tab
 
 ---
-**Made with ❤️ by [Tony A. Michailidis](https://github.com/Tony-A-Michailidis)**
 
 
