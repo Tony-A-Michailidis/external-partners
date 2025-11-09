@@ -1,6 +1,6 @@
 ## 🌟 Overview
 
-The system serves as a research institute gateway for metadata management, search, and authentication services. The system integrates multiple microservices to provide both interactive web interfaces and programmatic API access to geospatial data catalogs, with  authentication mechanisms supporting both local and federated identity providers. Detailed design documentation link here: [Detailed Design](https://deepwiki.com/Tony-A-Michailidis/external-partners).  
+This system serves as a research institute gateway for metadata management, search, and authentication services. The system integrates multiple microservices to provide both interactive web interfaces and programmatic API access to geospatial data catalogs, with authentication mechanisms supporting both local and federated identity providers. Detailed design documentation link here: [Detailed Design](https://deepwiki.com/Tony-A-Michailidis/external-partners).  
 
 
 ## ✨ Features
