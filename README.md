@@ -88,14 +88,6 @@ external-partners/
 └── docs/               # Additional documentation
 ```
 
-## 🛠️ Technology Stack
-
-- **Backend**: [Add your backend technology]
-- **Frontend**: [Add your frontend framework]
-- **Database**: [Add your database]
-- **Containerization**: Docker & Docker Compose
-- **Development**: GitHub Codespaces
-
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
